@@ -35,7 +35,7 @@ for d in dataset_csvs:
     dataset_df = dataset_df.append(get_df(d), ignore_index=True)
 
 dataset_df = dataset_df.reset_index(drop=True)
-print("Dataset Lenght:", len(dataset_df))
+print("Dataset length:", len(dataset_df))
 
 positive_df = dataset_df.loc[dataset_df['label'] == patient_class]
 negative_df = dataset_df.loc[dataset_df['label'] == control_class]
@@ -82,7 +82,7 @@ for i in range(1, num_folds+1):
   return_num_neg_pos(train_set)
   print("Validation:")
   return_num_neg_pos(validation_set)
-  print("VALID+TRAIN Lenght:", len(validation_set)+len(train_set))
+  print("VALID+TRAIN length:", len(validation_set)+len(train_set))
 
   # integrite checks
   df_check = pd.concat([train_set, validation_set]).reset_index(drop=True)
@@ -95,7 +95,7 @@ for i in range(1, num_folds+1):
     print("Error duplicated instance on train and validation")
     exit()
   if len(df_check) != len(dataset_df):
-    print("Dataset lenght Problem")
+    print("Dataset length Problem")
     exit()
 
   os.makedirs(os.path.join(fold_dir, str(count)), exist_ok=True)

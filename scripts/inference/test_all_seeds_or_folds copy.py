@@ -232,7 +232,7 @@ def run_test_all_seeds(args, cuda=True, debug=False, return_potential=False):
         df_confusion = pd.crosstab(y_target, y_pred, rownames=['Target'], colnames=['Predicted'], margins=True)
         print(df_confusion)
             
-        print("Test\n ", "Acurracy Control: ", acc_control, "Acurracy Patient: ", acc_patient, "Acurracy Balanced", acc_balanced)
+        print("Test\n ", "Accuracy Control: ", acc_control, "Accuracy Patient: ", acc_patient, "Accuracy Balanced", acc_balanced)
         print("F1:", f1, "UAR:", uar)
     
     if return_potential:

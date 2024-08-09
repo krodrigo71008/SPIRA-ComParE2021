@@ -154,7 +154,7 @@ def test(criterion, ap, model, c, testloader, step,  cuda, confusion_matrix=Fals
             
         mean_acc = acc / len(testloader.dataset)
         mean_loss = loss / len(testloader.dataset)
-    print("Test\n ", "Acurracy: ", mean_acc, "Acurracy Control: ", acc_control, "Acurracy Patient: ", acc_patient, "Acurracy Balanced", acc_balanced)
+    print("Test\n ", "Accuracy: ", mean_acc, "Accuracy Control: ", acc_control, "Accuracy Patient: ", acc_patient, "Accuracy Balanced", acc_balanced)
     print("Loss:", mean_loss, "Loss Control:", loss_control, "Loss Patient:", loss_patient, "Loss balanced: ", loss_balanced)
     print("F1:", f1, "UAR:", uar)
     return mean_acc
@@ -218,15 +218,15 @@ if __name__ == '__main__':
     ap = AudioProcessor(**c.audio)
     
     if not args.no_insert_noise:
-        c.data_aumentation['insert_noise'] = True
+        c.data_augmentation['insert_noise'] = True
     else:
-        c.data_aumentation['insert_noise'] = False
+        c.data_augmentation['insert_noise'] = False
 
     # ste values for noisy insertion in test
-    c.data_aumentation["num_noise_control"] = args.num_noise_control
-    c.data_aumentation["num_noise_patient"] = args.num_noise_patient
+    c.data_augmentation["num_noise_control"] = args.num_noise_control
+    c.data_augmentation["num_noise_patient"] = args.num_noise_patient
 
-    print("Insert noise ?", c.data_aumentation['insert_noise'])
+    print("Insert noise ?", c.data_augmentation['insert_noise'])
 
     c.dataset['test_csv'] = args.test_csv
     c.dataset['test_data_root_path'] = args.test_root_dir

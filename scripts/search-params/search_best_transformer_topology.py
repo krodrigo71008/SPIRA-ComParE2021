@@ -49,7 +49,7 @@ def run_train(c, args, model_params):
         tensorboard = TensorboardWriter(os.path.join(log_path,'tensorboard'))
 
         trainloader = train_dataloader(c, ap, class_balancer_batch=c.dataset['class_balancer_batch'])
-        max_seq_len = trainloader.dataset.get_max_seq_lenght()
+        max_seq_len = trainloader.dataset.get_max_seq_length()
         c.dataset['max_seq_len'] = max_seq_len
 
         # save config in train dir, its necessary for test before train and reproducity

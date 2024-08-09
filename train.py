@@ -114,7 +114,7 @@ def validation(criterion, ap, model, c, testloader, tensorboard, step,  cuda, lo
     mean_loss = loss / len(testloader.dataset)
 
     print("Validation:")
-    print("Acurracy: ", mean_acc, "Acurracy Control: ", acc_control, "Acurracy Patient: ", acc_patient, "Acurracy Balanced", acc_balanced)
+    print("Accuracy: ", mean_acc, "Accuracy Control: ", acc_control, "Accuracy Patient: ", acc_patient, "Accuracy Balanced", acc_balanced)
     print("Loss normal:", mean_loss, "Loss Control:", loss_control, "Loss Patient:", loss_patient, "Loss balanced: ", loss_balanced, "Loss1+loss2:", loss_final)
     tensorboard.log_evaluation(mean_loss, mean_acc, step, loss_balanced, acc_balanced)
     model.train()
@@ -260,15 +260,16 @@ def train(args, log_dir, checkpoint_path, trainloader, testloader, tensorboard, 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_path', type=str, required=True,
-                        help="json file with configurations")
+    # parser.add_argument('-c', '--config_path', type=str, required=True,
+    #                     help="json file with configurations")
     parser.add_argument('--checkpoint_path', type=str, default=None,
                         help="path of checkpoint pt file, for continue training")
     parser.add_argument('-s', '--seed', type=int, default=None,
                         help="Seed for training")
     args = parser.parse_args()
 
-    c = load_config(args.config_path)
+    # c = load_config(args.config_path)
+    c = load_config("test.json")
     ap = AudioProcessor(**c.audio)
     if args.seed is None:
         log_path = os.path.join(c.train_config['logs_path'], c.model_name)
@@ -281,7 +282,7 @@ if __name__ == '__main__':
     tensorboard = TensorboardWriter(os.path.join(log_path,'tensorboard'))
 
     trainloader = train_dataloader(copy_config_dict(c), ap, class_balancer_batch=c.dataset['class_balancer_batch'])
-    max_seq_len = trainloader.dataset.get_max_seq_lenght()
+    max_seq_len = trainloader.dataset.get_max_seq_length()
     c.dataset['max_seq_len'] = max_seq_len
 
     # save config in train dir, its necessary for test before train and reproducity

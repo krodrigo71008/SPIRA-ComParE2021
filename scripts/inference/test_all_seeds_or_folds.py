@@ -210,7 +210,7 @@ def run_test_all_kfolds(experiment_dir, test_csv, test_root_dir, batch_size, num
         df_confusion = pd.crosstab(y_target, y_pred, rownames=['Target'], colnames=['Predicted'], margins=True)
         print(df_confusion)
             
-        print("Test\n ", "Acurracy Control: ", acc_control, "Acurracy Patient: ", acc_patient, "Acurracy Balanced", acc_balanced)
+        print("Test\n ", "Accuracy Control: ", acc_control, "Accuracy Patient: ", acc_patient, "Accuracy Balanced", acc_balanced)
         print("F1:", f1, "UAR:", uar)
     
     if return_potential:
@@ -264,8 +264,8 @@ def run_test_all_seeds(experiment_dir, test_csv, test_root_dir, batch_size, num_
 
         c.train_config['seed'] = 0
 
-        c.data_aumentation['noisetypes'] = noisetypes
-        c.data_aumentation['musan_path'] = musan_path
+        c.data_augmentation['noisetypes'] = noisetypes
+        c.data_augmentation['musan_path'] = musan_path
         if c.dataset['temporal_control'] == 'one_window':
             c.dataset['temporal_control']  = 'overlapping'
             # c.dataset['step'] = 1
@@ -356,7 +356,7 @@ def run_test_all_seeds(experiment_dir, test_csv, test_root_dir, batch_size, num_
         df_confusion = pd.crosstab(y_target, y_pred, rownames=['Target'], colnames=['Predicted'], margins=True)
         print(df_confusion)
             
-        print("Test\n ", "Acurracy Control: ", acc_control, "Acurracy Patient: ", acc_patient, "Acurracy Balanced", acc_balanced)
+        print("Test\n ", "Accuracy Control: ", acc_control, "Accuracy Patient: ", acc_patient, "Accuracy Balanced", acc_balanced)
         print("F1:", f1, "UAR:", uar)
         if return_f1_auc:
             return f1, uar, acc_control, acc_patient

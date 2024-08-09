@@ -10,7 +10,6 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
 import torchaudio
 from scipy import signal
-import wavfile
 import glob
 
 from utils.generic_utils import SpecAugmentation
@@ -103,41 +102,41 @@ class Dataset(Dataset):
         self.patient_class = c.dataset['patient_class']
 
         # read csvs
-        self.dataset_list = pd.read_csv(self.dataset_csv, sep=',').replace({'?': -1}).replace({'negative': self.control_class}, regex=True).replace({'positive': self.patient_class}, regex=True).values
+        self.dataset_list = pd.read_csv(self.dataset_csv).replace({'Negative': self.control_class, 'Positive': self.patient_class}, regex=True).infer_objects().values
 
-        # get max seq lenght for padding 
+        # get max seq length for padding 
         if self.c.dataset['temporal_control'] == 'padding' and train and not self.c.dataset['max_seq_len']:
             self.max_seq_len = 0
             min_seq = float('inf')
             for idx in range(len(self.dataset_list)):
-                wav = self.ap.load_wav(os.path.join(self.dataset_root, self.dataset_list[idx][0]))
-                # calculate time step dim using hop lenght
+                wav = self.ap.load_wav(os.path.join(self.dataset_root, self.dataset_list[idx][2]))
+                # calculate time step dim using hop length
                 seq_len = int((wav.shape[1]/c.audio['hop_length'])+1)
                 if seq_len > self.max_seq_len:
                     self.max_seq_len = seq_len
                 if seq_len < min_seq:
                     min_seq = seq_len
-            print("The Max Time dim Lenght is: {} (+- {} seconds)".format(self.max_seq_len, ( self.max_seq_len*self.c.audio['hop_length'])/self.ap.sample_rate))
-            print("The Min Time dim Lenght is: {} (+- {} seconds)".format(min_seq, (min_seq*self.c.audio['hop_length'])/self.ap.sample_rate))
+            print("The Max Time dim length is: {} (+- {} seconds)".format(self.max_seq_len, ( self.max_seq_len*self.c.audio['hop_length'])/self.ap.sample_rate))
+            print("The Min Time dim length is: {} (+- {} seconds)".format(min_seq, (min_seq*self.c.audio['hop_length'])/self.ap.sample_rate))
 
         elif self.c.dataset['temporal_control'] == 'overlapping' or self.c.dataset['temporal_control'] == 'speech_t' or self.c.dataset['temporal_control'] == 'one_window':
-            # set max len for window_len seconds multiply by sample_rate and divide by hop_lenght
+            # set max len for window_len seconds multiply by sample_rate and divide by hop_length
             self.max_seq_len = int(((self.c.dataset['window_len']*self.ap.sample_rate)/c.audio['hop_length'])+1)
-            print("The Max Time dim Lenght is: ", self.max_seq_len, "It's use overlapping technique, window:", self.c.dataset['window_len'], "step:", self.c.dataset['step'])
+            print("The Max Time dim length is: ", self.max_seq_len, "It's use overlapping technique, window:", self.c.dataset['window_len'], "step:", self.c.dataset['step'])
         else: # for eval set max_seq_len in train mode
             if self.c.dataset['max_seq_len']:
                 self.max_seq_len = self.c.dataset['max_seq_len']
             else:
                 self.max_seq_len = max_seq_len
         
-        if self.c.data_aumentation['insert_noise']:
-            self.augment_wav = AugmentWAV(self.c.data_aumentation['musan_path'], noisetypes=self.c.data_aumentation['noisetypes'])
+        if self.c.data_augmentation['insert_noise']:
+            self.augment_wav = AugmentWAV(self.c.data_augmentation['musan_path'], noisetypes=self.c.data_augmentation['noisetypes'])
         else:
             self.augment_wav = None
 
         if self.test_insert_noise:
             self.spec_augmenter = SpecAugmentation(time_drop_width=64, time_stripes_num=2, freq_drop_width=8, freq_stripes_num=2)
-            self.augment_wav = AugmentWAV(self.c.data_aumentation['musan_path'], noisetypes=self.c.data_aumentation['noisetypes'])
+            self.augment_wav = AugmentWAV(self.c.data_augmentation['musan_path'], noisetypes=self.c.data_augmentation['noisetypes'])
             if not self.num_test_additive_noise and not self.num_test_specaug:
                 raise RuntimeError("ERROR: when  test_insert_noise is True, num_test_additive_noise or  num_test_specaug need to be > 0")
             if self.c.dataset['temporal_control'] == 'overlapping' or self.c.dataset['temporal_control'] == 'speech_t':
@@ -145,24 +144,19 @@ class Dataset(Dataset):
         else:
             self.spec_augmenter = None
 
-    def get_max_seq_lenght(self):
+    def get_max_seq_length(self):
         return self.max_seq_len
 
     def __getitem__(self, idx):
-        wavfile_name = self.dataset_list[idx][0]
+        wavfile_name = self.dataset_list[idx][2]
         wav = self.ap.load_wav(os.path.join(self.dataset_root, wavfile_name))
         #print("FILE:", os.path.join(self.dataset_root, self.dataset_list[idx][0]), wav.shape)
-        class_name = self.dataset_list[idx][1]
-        # print('class before transform', class_name)
-        if str(class_name) == 'positive':
-           class_name = self.patient_class
-        elif str(class_name) == 'negative':
-            class_name = self.control_class
+        class_name = self.dataset_list[idx][-1]
 
         # print('class after transform',class_name)
         # its assume that noise file is biggest than wav file !!
         # torchaudio.save('wav.wav', wav, self.ap.sample_rate)   
-        if self.c.data_aumentation['insert_noise'] and self.train:
+        if self.c.data_augmentation['insert_noise'] and self.train:
             wav = self.augment_wav.additive_noise(self.ap, wav)
 
         if self.c.dataset['temporal_control'] == 'overlapping' or self.c.dataset['temporal_control'] == 'speech_t':
