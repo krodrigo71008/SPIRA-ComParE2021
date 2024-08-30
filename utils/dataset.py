@@ -24,12 +24,14 @@ class AugmentWAV(object):
         self.noisesnr   = {'noise':[0,15],'speech':[13,20],'music':[5,15]}
         self.numnoise   = {'noise':[1,1], 'speech':[3,7],  'music':[1,1] }
         self.noiselist  = {}
-        augment_files   = glob.glob(os.path.join(musan_path,'*/*/*.wav'));
+        augment_files   = glob.glob(os.path.join(musan_path,'*/*/*.wav'))
 
         for file in augment_files:
+            file = file.replace("\\", "/")
             if not file.split('/')[-3] in self.noiselist:
                 self.noiselist[file.split('/')[-3]] = []
             self.noiselist[file.split('/')[-3]].append(file)
+            
     def additive_noise(self, ap, audio, noisecat=None):
         if noisecat is None:
             augtype = random.randint(0, len(self.noisetypes))
@@ -102,20 +104,38 @@ class Dataset(Dataset):
         self.patient_class = c.dataset['patient_class']
 
         # read csvs
-        self.dataset_list = pd.read_csv(self.dataset_csv).replace({'Negative': self.control_class, 'Positive': self.patient_class}, regex=True).infer_objects().values
+        self.dataset_list = pd.read_csv(self.dataset_csv).replace({'negative': self.control_class, 'positive': self.patient_class}, regex=True).infer_objects().values
+        # dataset_list_aux_val = pd.read_csv(c.dataset['eval_csv']).values
+        # dataset_list_aux_test = pd.read_csv(c.dataset['test_csv']).values
 
         # get max seq length for padding 
         if self.c.dataset['temporal_control'] == 'padding' and train and not self.c.dataset['max_seq_len']:
             self.max_seq_len = 0
             min_seq = float('inf')
             for idx in range(len(self.dataset_list)):
-                wav = self.ap.load_wav(os.path.join(self.dataset_root, self.dataset_list[idx][2]))
+                wav = self.ap.load_wav(os.path.join(self.dataset_root, self.dataset_list[idx][0]))
                 # calculate time step dim using hop length
                 seq_len = int((wav.shape[1]/c.audio['hop_length'])+1)
                 if seq_len > self.max_seq_len:
                     self.max_seq_len = seq_len
                 if seq_len < min_seq:
                     min_seq = seq_len
+            # for idx in range(len(dataset_list_aux_val)):
+            #     wav = self.ap.load_wav(os.path.join(self.dataset_root, dataset_list_aux_val[idx][0]))
+            #     # calculate time step dim using hop length
+            #     seq_len = int((wav.shape[1]/c.audio['hop_length'])+1)
+            #     if seq_len > self.max_seq_len:
+            #         self.max_seq_len = seq_len
+            #     if seq_len < min_seq:
+            #         min_seq = seq_len
+            # for idx in range(len(dataset_list_aux_test)):
+            #     wav = self.ap.load_wav(os.path.join(self.dataset_root, dataset_list_aux_test[idx][0]))
+            #     # calculate time step dim using hop length
+            #     seq_len = int((wav.shape[1]/c.audio['hop_length'])+1)
+            #     if seq_len > self.max_seq_len:
+            #         self.max_seq_len = seq_len
+            #     if seq_len < min_seq:
+            #         min_seq = seq_len
             print("The Max Time dim length is: {} (+- {} seconds)".format(self.max_seq_len, ( self.max_seq_len*self.c.audio['hop_length'])/self.ap.sample_rate))
             print("The Min Time dim length is: {} (+- {} seconds)".format(min_seq, (min_seq*self.c.audio['hop_length'])/self.ap.sample_rate))
 
@@ -148,7 +168,7 @@ class Dataset(Dataset):
         return self.max_seq_len
 
     def __getitem__(self, idx):
-        wavfile_name = self.dataset_list[idx][2]
+        wavfile_name = self.dataset_list[idx][0]
         wav = self.ap.load_wav(os.path.join(self.dataset_root, wavfile_name))
         #print("FILE:", os.path.join(self.dataset_root, self.dataset_list[idx][0]), wav.shape)
         class_name = self.dataset_list[idx][-1]
@@ -211,7 +231,6 @@ class Dataset(Dataset):
             # remove batch dim = (timestamp, n_features)
             feature = feature.reshape(feature.shape[1:])
             if self.c.dataset['temporal_control'] == 'padding':
-                # padding for max sequence 
                 zeros = torch.zeros(self.max_seq_len - feature.size(0),feature.size(1))
                 # append zeros before features
                 feature = torch.cat([feature, zeros], 0)

@@ -141,7 +141,7 @@ def run_ensamble_multi_exp(experiment_dirs, test_csv, test_root_dir, batch_size,
 
 
 if __name__ == '__main__':
-    # python test_experiments_ensambles_all_seeds_or_folds.py  --test_csv ../Speech/dist/lab/devel.csv -r ../Speech/dist/wav_normalized  --batch_size 30
+    # python test_experiments_ensambles_all_seeds_or_folds.py  --test_csv ../data/compare/ComParE2021_CSS/lab/devel.csv -r ../data/compare/ComParE2021_CSS/wav  --batch_size 30
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--test_csv', type=str, required=True,
@@ -166,12 +166,12 @@ if __name__ == '__main__':
     parser.add_argument("--noisetypes", type=list, default=["noise"],
                         help="Musan noise types, default noise")
 
-    parser.add_argument("--musan_path", type=str, default="../musan/",
-                        help="Musan dataset Path, default ../musan/")                    
+    parser.add_argument("--musan_path", type=str, default="../data/musan/",
+                        help="Musan dataset Path, default ../data/musan/")                    
              
     args = parser.parse_args()
 
-    experiments_dir = ["../Speech/Experiments_Final/Experiment-3/", "../Speech/Experiments_Final_one_window_Final/Experiment-2/", "../Speech/Experiments_Final_kfolds/Experiment-2" ]
+    experiments_dir = ["logs/Experiments_Final/Experiment-3/", "logs/Experiments_Final_one_window_Final/Experiment-2/", "logs/Experiments_Final_kfolds/Experiment-2" ]
     
     run_ensamble_multi_exp(experiments_dir, args.test_csv, args.test_root_dir, args.batch_size, args.num_workers, False, args.output_csv, cuda=True, debug=args.debug, return_potential=False, insert_noise=args.insert_noise, num_additive_noise=args.num_additive, num_specaug=args.num_specaug, noisetypes=args.noisetypes, musan_path=args.musan_path) 
     

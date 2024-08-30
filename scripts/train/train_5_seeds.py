@@ -39,29 +39,29 @@ def enablePrint():
 
 
 def run_train(c, args, model_params=None):
-        c = copy_config_dict(c)
-        ap = AudioProcessor(**c.audio)
+    c = copy_config_dict(c)
+    ap = AudioProcessor(**c.audio)
 
-        log_path = os.path.join(c.train_config['logs_path'], c.model_name)
-    
+    log_path = os.path.join(c.train_config['logs_path'], c.model_name)
 
-        os.makedirs(log_path, exist_ok=True)
 
-        tensorboard = TensorboardWriter(os.path.join(log_path,'tensorboard'))
+    os.makedirs(log_path, exist_ok=True)
 
-        trainloader = train_dataloader(copy_config_dict(c), ap, class_balancer_batch=c.dataset['class_balancer_batch'])
-        max_seq_len = trainloader.dataset.get_max_seq_length()
-        c.dataset['max_seq_len'] = max_seq_len
+    tensorboard = TensorboardWriter(os.path.join(log_path,'tensorboard'))
 
-        # save config in train dir, its necessary for test before train and reproducity
-        save_config_file(c, os.path.join(log_path,'config.json'))
-        # one_window in eval use overlapping
-        if c.dataset['temporal_control'] == 'one_window':
-            c.dataset['temporal_control']  = 'overlapping'
+    trainloader = train_dataloader(copy_config_dict(c), ap, class_balancer_batch=c.dataset['class_balancer_batch'])
+    max_seq_len = trainloader.dataset.get_max_seq_length()
+    c.dataset['max_seq_len'] = max_seq_len
 
-        evaloader = eval_dataloader(c, ap, max_seq_len=max_seq_len)
-    
-        return train(args, log_path, args.checkpoint_path, trainloader, evaloader, tensorboard, c, c.model_name, ap, cuda=True, model_params=model_params)
+    # save config in train dir, its necessary for test before train and reproducity
+    save_config_file(c, os.path.join(log_path,'config.json'))
+    # one_window in eval use overlapping
+    if c.dataset['temporal_control'] == 'one_window':
+        c.dataset['temporal_control']  = 'overlapping'
+
+    evaloader = eval_dataloader(c, ap, max_seq_len=max_seq_len)
+
+    return train(args, log_path, args.checkpoint_path, trainloader, evaloader, tensorboard, c, c.model_name, ap, cuda=True, model_params=model_params)
 
 
      

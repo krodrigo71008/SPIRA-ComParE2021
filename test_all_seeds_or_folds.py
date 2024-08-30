@@ -411,8 +411,8 @@ if __name__ == '__main__':
     parser.add_argument("--noisetypes", type=list, default=["noise"],
                         help="Musan noise types, default noise")
 
-    parser.add_argument("--musan_path", type=str, default="../musan/",
-                        help="Musan dataset Path, default ../musan/")                    
+    parser.add_argument("--musan_path", type=str, default="../data/musan/",
+                        help="Musan dataset Path, default ../data/musan/")                    
              
     args = parser.parse_args()
     run_test_all_seeds_folds(args.experiment_dir, args.test_csv, args.test_root_dir, args.batch_size, args.num_workers, args.simples_vote, args.output_csv, cuda=True, debug=args.debug, return_potential=False, insert_noise=args.insert_noise, num_additive_noise=args.num_additive, num_specaug=args.num_specaug, noisetypes=args.noisetypes, musan_path=args.musan_path) 

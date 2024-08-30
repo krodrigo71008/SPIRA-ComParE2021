@@ -260,16 +260,17 @@ def train(args, log_dir, checkpoint_path, trainloader, testloader, tensorboard, 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument('-c', '--config_path', type=str, required=True,
-    #                     help="json file with configurations")
+    parser.add_argument('-c', '--config_path', type=str, required=False,
+                        help="json file with configurations")
     parser.add_argument('--checkpoint_path', type=str, default=None,
                         help="path of checkpoint pt file, for continue training")
     parser.add_argument('-s', '--seed', type=int, default=None,
                         help="Seed for training")
     args = parser.parse_args()
+    # args.seed = 42
 
-    # c = load_config(args.config_path)
-    c = load_config("test.json")
+    c = load_config(args.config_path)
+    # c = load_config("Configs/Experiments_Final_kfold/configs/Speech/exp2.json")
     ap = AudioProcessor(**c.audio)
     if args.seed is None:
         log_path = os.path.join(c.train_config['logs_path'], c.model_name)

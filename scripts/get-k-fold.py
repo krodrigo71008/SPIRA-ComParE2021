@@ -15,12 +15,12 @@ def get_df(d):
   return pd.read_csv(d, sep=',')#.replace({'negative': control_class}, regex=True).replace({'positive': patient_class}, regex=True)
 
 # Speech
-fold_dir = "../Speech/dist/lab/5-fold/"
-dataset_csvs =["../Speech/dist/lab/train.csv", "../Speech/dist/lab/devel.csv"] 
+fold_dir = "../data/compare/ComParE2021_CSS/lab/5-fold/"
+dataset_csvs =["../data/compare/ComParE2021_CSS/lab/train.csv", "../data/compare/ComParE2021_CSS/lab/devel.csv"] 
 
 #Cough
-# fold_dir = "../Tosse/dist/lab/5-fold/"
-# dataset_csvs =["../Tosse/dist/lab/train.csv", "../Tosse/dist/lab/devel.csv"] 
+# fold_dir = "../data/compare/ComParE2021_CCS/lab/5-fold/"
+# dataset_csvs =["../data/compare/ComParE2021_CCS/lab/train.csv", "../data/compare/ComParE2021_CCS/lab/devel.csv"] 
 
 control_class = 'negative' # 0
 patient_class = 'positive' # 1
